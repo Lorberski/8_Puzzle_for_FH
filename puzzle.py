@@ -241,7 +241,7 @@ def solve_list_of_puzzles(solvable_puzzle_list, heuristic_function, list_of_time
         list_of_memory_for_each_puzzle_in_bytes.append(init_solve_one_puzzle(current_puzzle, heuristic_function, False))
         list_of_times_for_each_puzzle_in_sec.append(time.time() - current_start_time)
 
-    print("total time: ", time.time() - total_start_time)
+    print("Total time: ", time.time() - total_start_time, " sec")
 
 
 def calc_mean(list_of_numbers):
