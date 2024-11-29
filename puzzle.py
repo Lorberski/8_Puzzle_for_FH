@@ -155,11 +155,12 @@ def pretty_print(puzzle):
         print(row)
 
 
-def init_solve_one_puzzle(puzzle, heuristic_function):
-    print("START:")
+def init_solve_one_puzzle(puzzle, heuristic_function, with_console_output):
     puzzle_as_node = Node(puzzle, 0, heuristic_function, None)
-    print(puzzle_as_node.function_for_heuristic)
-    pretty_print_puzzle_node(puzzle_as_node)
+    if with_console_output:
+        print("START:")
+        print(puzzle_as_node.function_for_heuristic)
+        pretty_print_puzzle_node(puzzle_as_node)
 
     start_time = time.time()
 
@@ -172,11 +173,13 @@ def init_solve_one_puzzle(puzzle, heuristic_function):
     set_is_in_heap = set()
 
     solution = solve_puzzle(puzzle_as_node, visited_nodes_set, heap, set_is_in_heap)
-    print("**********************************************************************")
 
-    print_solution(solution)
-    time_needed = time.time() - start_time
-    print(f"Time: {time_needed:.6f} seconds")
+    if with_console_output:
+        print("**********************************************************************")
+
+        print_solution(solution)
+        time_needed = time.time() - start_time
+        print(f"Time: {time_needed:.6f} seconds")
 
 
 def solve_puzzle(puzzle_as_node, visited_nodes_set, heap, set_is_in_heap):
@@ -227,3 +230,12 @@ def creat_100_solvable_puzzles():
     return list_of_100_puzzles
 
 
+def solve_list_of_puzzles(solvable_puzzle_list, heuristic_function, list_of_times_for_each_puzzle):
+    total_start_time = time.time()
+
+    for current_puzzle in solvable_puzzle_list:
+        current_start_time = time.time()
+        init_solve_one_puzzle(current_puzzle, heuristic_function, False)
+        list_of_times_for_each_puzzle.append(time.time() - current_start_time)
+
+    print("total time: ", time.time() - total_start_time)
