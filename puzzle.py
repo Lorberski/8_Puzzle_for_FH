@@ -180,11 +180,10 @@ def solve_puzzle(puzzle_as_node, visited_nodes_set, heap, set_is_in_heap):
 def init_solve_one_puzzle(puzzle, heuristic_function, with_console_output):
     puzzle_as_node = Node(puzzle, 0, heuristic_function, None)
     if with_console_output:
-        print("START:")
+        print("!!!!!!!!!!!!!START!!!!!!!!!!!!!!")
         print(puzzle_as_node.function_for_heuristic)
         pretty_print_puzzle_node(puzzle_as_node)
 
-    start_time = time.time()
 
     if not check_if_solvable(puzzle_as_node.puzzle):
         print("not solvable")
@@ -200,9 +199,8 @@ def init_solve_one_puzzle(puzzle, heuristic_function, with_console_output):
         print("**********************************************************************")
 
         print_solution(solution)
-        time_needed = time.time() - start_time
-        print(f"Time: {time_needed:.6f} seconds")
-        print(f"total memory from heap: {asizeof.asizeof(heap)} Bytes")
+        print(f"Time: {solution.time_to_solve_till_goal_node:.6f} seconds")
+        print(f"heap memory usage: {asizeof.asizeof(heap)} Bytes")
 
     return asizeof.asizeof(heap), solution.time_to_solve_till_goal_node
 
