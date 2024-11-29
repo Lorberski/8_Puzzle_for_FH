@@ -1,6 +1,7 @@
 import copy
 import heapq
 import random
+import time
 from typing import List
 
 # goal_state = [[0, 1, 2],
@@ -17,6 +18,10 @@ def create_random_puzzle():
     random.shuffle(numbers)
     array = [numbers[i:i + 3] for i in range(0, 9, 3)]
     return array
+
+
+def copy_puzzle(puzzle):
+    return [row[:] for row in puzzle]
 
 
 def check_if_solvable(puzzle):
@@ -107,28 +112,28 @@ def create_child_nodes(parent_node):
     row_pos_empty_field, col_pos_empty_field = pos_in_puzzle(0, parent_node.puzzle)
 
     if row_pos_empty_field > 0:
-        temp_puzzle = copy.deepcopy(parent_node.puzzle)
+        temp_puzzle = copy_puzzle(parent_node.puzzle)
         temp_puzzle[row_pos_empty_field - 1][col_pos_empty_field] = 0
         temp_puzzle[row_pos_empty_field][col_pos_empty_field] = parent_node.puzzle[row_pos_empty_field - 1][
             col_pos_empty_field]
         temp_puzzle_list.append(temp_puzzle)
 
     if row_pos_empty_field < 2:
-        temp_puzzle = copy.deepcopy(parent_node.puzzle)
+        temp_puzzle = copy_puzzle(parent_node.puzzle)
         temp_puzzle[row_pos_empty_field + 1][col_pos_empty_field] = 0
         temp_puzzle[row_pos_empty_field][col_pos_empty_field] = parent_node.puzzle[row_pos_empty_field + 1][
             col_pos_empty_field]
         temp_puzzle_list.append(temp_puzzle)
 
     if col_pos_empty_field > 0:
-        temp_puzzle = copy.deepcopy(parent_node.puzzle)
+        temp_puzzle = copy_puzzle(parent_node.puzzle)
         temp_puzzle[row_pos_empty_field][col_pos_empty_field - 1] = 0
         temp_puzzle[row_pos_empty_field][col_pos_empty_field] = parent_node.puzzle[row_pos_empty_field][
             col_pos_empty_field - 1]
         temp_puzzle_list.append(temp_puzzle)
 
     if col_pos_empty_field < 2:
-        temp_puzzle = copy.deepcopy(parent_node.puzzle)
+        temp_puzzle = copy_puzzle(parent_node.puzzle)
         temp_puzzle[row_pos_empty_field][col_pos_empty_field + 1] = 0
         temp_puzzle[row_pos_empty_field][col_pos_empty_field] = parent_node.puzzle[row_pos_empty_field][
             col_pos_empty_field + 1]
@@ -150,20 +155,28 @@ def pretty_print(puzzle):
         print(row)
 
 
-def init_solve_puzzle(puzzle, heuristic_function, visited_nodes_set, heap, set_is_in_heap):
+def init_solve_puzzle(puzzle, heuristic_function):
     print("START:")
     puzzle_as_node = Node(puzzle, 0, heuristic_function, None)
     print(puzzle_as_node.function_for_heuristic)
     pretty_print_puzzle_node(puzzle_as_node)
 
+    start_time = time.time()
+
     if not check_if_solvable(puzzle_as_node.puzzle):
         print("not solvable")
         return
+
+    heap = []
+    visited_nodes_set = set()
+    set_is_in_heap = set()
 
     solution = solve_puzzle(puzzle_as_node, visited_nodes_set, heap, set_is_in_heap)
     print("**********************************************************************")
 
     print_solution(solution)
+    time_needed = time.time() - start_time
+    print(f"Time: {time_needed:.6f} seconds")
 
 
 def solve_puzzle(puzzle_as_node, visited_nodes_set, heap, set_is_in_heap):
@@ -177,8 +190,6 @@ def solve_puzzle(puzzle_as_node, visited_nodes_set, heap, set_is_in_heap):
 
         for child_node in temp_child_nodes:
             if child_node.to_hashable() not in visited_nodes_set and child_node.to_hashable() not in set_is_in_heap:
-                # print("child node:")
-                # pretty_print_puzzle_node(child_node)
                 heapq.heappush(heap, child_node)
                 set_is_in_heap.add(child_node.to_hashable())
 
