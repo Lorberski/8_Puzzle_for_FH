@@ -66,7 +66,7 @@ def calc_manhattan_distance(puzzle):
     if puzzle is None:
         return None
 
-    # Zielpositionen aus goal_state berechnen
+    # dict vor goal positions in goal_state
     goal_positions = {value: (i, j) for i, row in enumerate(goal_state) for j, value in enumerate(row)}
 
     sum_manhattan_distance = 0
@@ -155,7 +155,7 @@ def pretty_print(puzzle):
         print(row)
 
 
-def init_solve_puzzle(puzzle, heuristic_function):
+def init_solve_one_puzzle(puzzle, heuristic_function):
     print("START:")
     puzzle_as_node = Node(puzzle, 0, heuristic_function, None)
     print(puzzle_as_node.function_for_heuristic)
@@ -214,3 +214,16 @@ def print_solution(solution_as_a_node):
         return
 
     print_solution(solution_as_a_node.parent_node)
+
+
+def creat_100_solvable_puzzles():
+    list_of_100_puzzles = []
+
+    while len(list_of_100_puzzles) != 100:
+        temp_puzzle = create_random_puzzle()
+        if check_if_solvable(temp_puzzle):
+            list_of_100_puzzles.append(temp_puzzle)
+
+    return list_of_100_puzzles
+
+
