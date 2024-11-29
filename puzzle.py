@@ -68,8 +68,8 @@ def calc_manhattan_distance(puzzle):
 
     for i, row in enumerate(puzzle):
         for j, value in enumerate(row):
-            if value != 0:  # Ignoriere das leere Feld
-                goal_i, goal_j = goal_positions[value]  # Zielposition des aktuellen Werts
+            if value != 0:
+                goal_i, goal_j = goal_positions[value]  #
                 sum_manhattan_distance += abs(i - goal_i) + abs(j - goal_j)
 
     return sum_manhattan_distance
@@ -192,8 +192,9 @@ def print_solution(solution_as_a_node):
     print_solution(solution_as_a_node.parent_node)
 
 
-def init_solve_puzzle(puzzle_as_node, visited_nodes_set, heap):
+def init_solve_puzzle(puzzle, heuristic_function, visited_nodes_set, heap, set_is_in_heap):
     print("START:")
+    puzzle_as_node = Node(puzzle, 0, heuristic_function, None)
     print(puzzle_as_node.function_for_heuristic)
     pretty_print_puzzle_node(puzzle_as_node)
 
