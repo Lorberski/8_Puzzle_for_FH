@@ -181,6 +181,8 @@ def init_solve_one_puzzle(puzzle, heuristic_function, with_console_output):
         print(f"Time: {time_needed:.6f} seconds")
         print(f"total memory from heap: {asizeof.asizeof(heap)} Bytes")
 
+    return asizeof.asizeof(heap)
+
 
 def solve_puzzle(puzzle_as_node, visited_nodes_set, heap, set_is_in_heap):
     current_node = puzzle_as_node
@@ -230,12 +232,21 @@ def creat_100_solvable_puzzles():
     return list_of_100_puzzles
 
 
-def solve_list_of_puzzles(solvable_puzzle_list, heuristic_function, list_of_times_for_each_puzzle):
+def solve_list_of_puzzles(solvable_puzzle_list, heuristic_function, list_of_times_for_each_puzzle_in_sec,
+                          list_of_memory_for_each_puzzle_in_bytes):
     total_start_time = time.time()
 
     for current_puzzle in solvable_puzzle_list:
         current_start_time = time.time()
-        init_solve_one_puzzle(current_puzzle, heuristic_function, False)
-        list_of_times_for_each_puzzle.append(time.time() - current_start_time)
+        list_of_memory_for_each_puzzle_in_bytes.append(init_solve_one_puzzle(current_puzzle, heuristic_function, False))
+        list_of_times_for_each_puzzle_in_sec.append(time.time() - current_start_time)
 
     print("total time: ", time.time() - total_start_time)
+
+
+def calc_mean(list_of_numbers):
+    return sum(list_of_numbers) / len(list_of_numbers)
+
+
+def calc_variance(mean, list_of_numbers):
+    return sum((x - mean) ** 2 for x in list_of_numbers) / len(list_of_numbers)
