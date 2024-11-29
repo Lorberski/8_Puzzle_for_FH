@@ -150,36 +150,6 @@ def pretty_print(puzzle):
         print(row)
 
 
-# def solve_puzzle(puzzle_as_node, list_nodes_already_visited):
-#     if not check_if_solvable(puzzle_as_node.puzzle):
-#         print("not solvable")
-#         return
-#
-#     list_nodes_already_visited.append(puzzle_as_node)
-#
-#     if puzzle_as_node.heuristic_value_of_the_puzzle == 0:
-#         return puzzle_as_node
-#
-#     puzzle_as_node.child_nodes = create_child_nodes(puzzle_as_node)
-#     print("parent_f:")
-#     print(puzzle_as_node.f)
-#
-#     puzzle_as_node_with_min_f = puzzle_as_node.child_nodes[0]
-#
-#     for current_node in puzzle_as_node.child_nodes:
-#
-#         print("current_node:")
-#         pretty_print(current_node.puzzle)
-#         print("current_f:")
-#         print(current_node.f)
-#         if current_node.f < puzzle_as_node_with_min_f.f and current_node not in list_nodes_already_visited:
-#             pretty_print(current_node.puzzle)
-#             puzzle_as_node_with_min_f = current_node
-#
-#         solve_puzzle(puzzle_as_node_with_min_f, list_nodes_already_visited)
-#     return
-
-
 def is_in_heap(node, heap):
     return any(existing_node.to_hashable() == node.to_hashable() for existing_node in heap)
 
