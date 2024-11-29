@@ -150,11 +150,23 @@ def pretty_print(puzzle):
         print(row)
 
 
-def is_in_heap(node, heap):
-    return any(existing_node.to_hashable() == node.to_hashable() for existing_node in heap)
+def init_solve_puzzle(puzzle, heuristic_function, visited_nodes_set, heap, set_is_in_heap):
+    print("START:")
+    puzzle_as_node = Node(puzzle, 0, heuristic_function, None)
+    print(puzzle_as_node.function_for_heuristic)
+    pretty_print_puzzle_node(puzzle_as_node)
+
+    if not check_if_solvable(puzzle_as_node.puzzle):
+        print("not solvable")
+        return
+
+    solution = solve_puzzle(puzzle_as_node, visited_nodes_set, heap, set_is_in_heap)
+    print("**********************************************************************")
+
+    print_solution(solution)
 
 
-def solve_puzzle(puzzle_as_node, visited_nodes_set, heap):
+def solve_puzzle(puzzle_as_node, visited_nodes_set, heap, set_is_in_heap):
     current_node = puzzle_as_node
 
     while current_node.heuristic_value_of_the_puzzle != 0:
@@ -164,10 +176,11 @@ def solve_puzzle(puzzle_as_node, visited_nodes_set, heap):
         temp_child_nodes = create_child_nodes(current_node)
 
         for child_node in temp_child_nodes:
-            if child_node.to_hashable() not in visited_nodes_set and not is_in_heap(child_node, heap):
+            if child_node.to_hashable() not in visited_nodes_set and child_node.to_hashable() not in set_is_in_heap:
                 # print("child node:")
                 # pretty_print_puzzle_node(child_node)
                 heapq.heappush(heap, child_node)
+                set_is_in_heap.add(child_node.to_hashable())
 
         current_node = heapq.heappop(heap)
 
@@ -190,19 +203,3 @@ def print_solution(solution_as_a_node):
         return
 
     print_solution(solution_as_a_node.parent_node)
-
-
-def init_solve_puzzle(puzzle, heuristic_function, visited_nodes_set, heap, set_is_in_heap):
-    print("START:")
-    puzzle_as_node = Node(puzzle, 0, heuristic_function, None)
-    print(puzzle_as_node.function_for_heuristic)
-    pretty_print_puzzle_node(puzzle_as_node)
-
-    if not check_if_solvable(puzzle_as_node.puzzle):
-        print("not solvable")
-        return
-
-    solution = solve_puzzle(puzzle_as_node, visited_nodes_set, heap)
-    print("**********************************************************************")
-
-    print_solution(solution)
