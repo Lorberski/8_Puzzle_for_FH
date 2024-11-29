@@ -1,8 +1,7 @@
-import copy
 import heapq
 import random
 import time
-from typing import List
+from pympler import asizeof
 
 # goal_state = [[0, 1, 2],
 #               [3, 4, 5],
@@ -180,6 +179,7 @@ def init_solve_one_puzzle(puzzle, heuristic_function, with_console_output):
         print_solution(solution)
         time_needed = time.time() - start_time
         print(f"Time: {time_needed:.6f} seconds")
+        print(f"total memory from heap: {asizeof.asizeof(heap)} Bytes")
 
 
 def solve_puzzle(puzzle_as_node, visited_nodes_set, heap, set_is_in_heap):
