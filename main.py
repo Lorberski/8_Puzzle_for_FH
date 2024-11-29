@@ -1,5 +1,4 @@
 import math
-
 import puzzle
 
 puzzle_with_31_steps_to_solve = [[8, 6, 7],
