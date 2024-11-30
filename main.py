@@ -1,13 +1,10 @@
 import math
 import puzzle
 
-puzzle_with_31_steps_to_solve = [[8, 6, 7],
-                                 [2, 5, 4],
-                                 [3, 0, 1]]
+# Keep the rest of your puzzle-related code here (e.g., puzzle creation, initialization)
 
-puzzle.init_solve_one_puzzle(puzzle.create_random_puzzle(), puzzle.calc_hamming, True, False)
-
-puzzle.init_solve_one_puzzle(puzzle.create_random_puzzle(), puzzle.calc_manhattan_distance, True, False)
+# Define the list of solvable puzzles
+list_of_100_solvable_puzzles = puzzle.creat_100_solvable_puzzles()
 
 
 def format_number(num):
@@ -30,7 +27,7 @@ def solve_and_print_results(puzzle_function, with_heapq_memory, heuristic_functi
 
     # Solve the puzzles
     puzzle.solve_list_of_puzzles(
-        list_of_100_solvable_puzzles,
+        puzzle_function,
         heuristic_function,
         time_list,
         memory_list,
@@ -70,13 +67,80 @@ def solve_and_print_results(puzzle_function, with_heapq_memory, heuristic_functi
     print()
 
 
-# Define the list of solvable puzzles
-list_of_100_solvable_puzzles = puzzle.creat_100_solvable_puzzles()
+def select_heuristic():
+    print("Select a heuristic:")
+    print("1. Manhattan Distance")
+    print("2. Hamming Distance")
+    print("3. Both")
+    choice = input("Enter your choice (1/2/3): ").strip()
+    if choice == "1":
+        return puzzle.calc_manhattan_distance
+    elif choice == "2":
+        return puzzle.calc_hamming
+    elif choice == "3":
+        return None  # Will run both heuristics
+    else:
+        print("Invalid choice, defaulting to Manhattan Distance.")
+        return puzzle.calc_manhattan_distance
 
-# Solve puzzles using Manhattan distance
-solve_and_print_results(with_heapq_memory=False, puzzle_function=list_of_100_solvable_puzzles, heuristic_function=puzzle.calc_manhattan_distance,
-                        title="solve 100 puzzles with manhattan")
 
-# Solve puzzles using Hamming distance
-solve_and_print_results(with_heapq_memory=False, puzzle_function=list_of_100_solvable_puzzles, heuristic_function=puzzle.calc_hamming,
-                        title="solve 100 puzzles with hamming")
+def select_number_of_puzzles():
+    print("Select number of puzzles:")
+    print("1. Solve 1 puzzle")
+    print("2. Solve 100 puzzles")
+    choice = input("Enter your choice (1/2): ").strip()
+    return 1 if choice == "1" else 100
+
+
+def run_program():
+    # Ask user for puzzle settings
+    heuristic_function = select_heuristic()
+    num_puzzles = select_number_of_puzzles()
+
+    if heuristic_function == None:
+        # If both heuristics are selected, run both
+        print("Solving puzzles with Manhattan Distance:")
+        solve_and_print_results(
+            puzzle_function=list_of_100_solvable_puzzles[:num_puzzles],
+            with_heapq_memory=False,
+            heuristic_function=puzzle.calc_manhattan_distance,
+            title="solve puzzles with Manhattan"
+        )
+
+        print("Solving puzzles with Hamming Distance:")
+        solve_and_print_results(
+            puzzle_function=list_of_100_solvable_puzzles[:num_puzzles],
+            with_heapq_memory=False,
+            heuristic_function=puzzle.calc_hamming,
+            title="solve puzzles with Hamming"
+        )
+    else:
+        # If only one heuristic is selected
+        solve_and_print_results(
+            puzzle_function=list_of_100_solvable_puzzles[:num_puzzles],
+            with_heapq_memory=False,
+            heuristic_function=heuristic_function,
+            title=f"solve {num_puzzles} puzzles with selected heuristic"
+        )
+
+
+def ask_to_run_again():
+    print("Do you want to run the program again?")
+    print("1. Yes")
+    print("2. No")
+    choice = input("Enter your choice (1/2): ").strip()
+    return choice == "1"
+
+
+def main():
+    # Main loop to allow the user to restart or exit
+    while True:
+        run_program()
+
+        if not ask_to_run_again():
+            print("Thank you for using the program. Exiting...")
+            break
+
+
+if __name__ == "__main__":
+    main()
