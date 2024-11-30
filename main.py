@@ -1,14 +1,6 @@
 import math
 import puzzle
 
-puzzle_with_31_steps_to_solve = [[8, 6, 7],
-                                 [2, 5, 4],
-                                 [3, 0, 1]]
-
-puzzle.init_solve_one_puzzle(puzzle.create_random_puzzle(), puzzle.calc_hamming, True, False)
-
-puzzle.init_solve_one_puzzle(puzzle.create_random_puzzle(), puzzle.calc_manhattan_distance, True, False)
-
 
 def format_number(num):
     return f"{num:,.6f}".replace(",", "X").replace(".", ",").replace("X", ".")
@@ -28,9 +20,8 @@ def solve_and_print_results(puzzle_function, with_heapq_memory, heuristic_functi
     memory_list = []
     expanded_nodes_list = []
 
-    # Solve the puzzles
     puzzle.solve_list_of_puzzles(
-        list_of_100_solvable_puzzles,
+        puzzle_function,
         heuristic_function,
         time_list,
         memory_list,
@@ -38,7 +29,6 @@ def solve_and_print_results(puzzle_function, with_heapq_memory, heuristic_functi
         with_heapq_memory
     )
 
-    # Calculate statistics
     mean_time = puzzle.calc_mean(time_list)
     time_variance = puzzle.calc_variance(mean_time, time_list)
     std_time = math.sqrt(time_variance)
@@ -52,7 +42,6 @@ def solve_and_print_results(puzzle_function, with_heapq_memory, heuristic_functi
         memory_variance = puzzle.calc_variance(mean_memory, memory_list)
         std_memory = math.sqrt(memory_variance)
 
-    # Print results
     print(f"Average time to solve puzzle:         {format_number(mean_time)} sec")
     print(f"Variance in solving times:            {format_number(time_variance)} sec²")
     print(f"Standard deviation of solving times:  {format_number(std_time)} sec")
@@ -70,13 +59,59 @@ def solve_and_print_results(puzzle_function, with_heapq_memory, heuristic_functi
     print()
 
 
-# Define the list of solvable puzzles
-list_of_100_solvable_puzzles = puzzle.creat_100_solvable_puzzles()
+def select_number_of_puzzles():
+    print("Select number of puzzles:")
+    print("1. Solve 1 puzzle")
+    print("2. Solve 100 puzzles")
+    choice = input("Enter your choice (1/2): ").strip()
+    return 1 if choice == "1" else 100
 
-# Solve puzzles using Manhattan distance
-solve_and_print_results(with_heapq_memory=False, puzzle_function=list_of_100_solvable_puzzles, heuristic_function=puzzle.calc_manhattan_distance,
-                        title="solve 100 puzzles with manhattan")
 
-# Solve puzzles using Hamming distance
-solve_and_print_results(with_heapq_memory=False, puzzle_function=list_of_100_solvable_puzzles, heuristic_function=puzzle.calc_hamming,
-                        title="solve 100 puzzles with hamming")
+def select_heuristic():
+    print("Select a heuristic:")
+    print("1. Manhattan Distance")
+    print("2. Hamming Distance")
+    print("3. Both")
+    choice = input("Enter your choice (1/2/3): ").strip()
+    if choice == "1":
+        return [puzzle.calc_manhattan_distance], ["Manhattan"]
+    elif choice == "2":
+        return [puzzle.calc_hamming], ["Hamming"]
+    elif choice == "3":
+        return [puzzle.calc_manhattan_distance, puzzle.calc_hamming], ["Manhattan", "Hamming"]
+    else:
+        print("Invalid choice, defaulting to Manhattan Distance.")
+        return [puzzle.calc_manhattan_distance], ["Manhattan"]
+
+
+def run_program():
+    list_of_100_solvable_puzzles = puzzle.creat_100_solvable_puzzles()
+
+    while True:
+        heuristics, heuristic_names = select_heuristic()
+        num_puzzles = select_number_of_puzzles()
+
+        if num_puzzles == 1:
+            for heuristic_function, heuristic_name in zip(heuristics, heuristic_names):
+                puzzle.init_solve_one_puzzle(puzzle.create_random_puzzle(), heuristic_function, True, False)
+        elif num_puzzles == 100:
+            for heuristic_function, heuristic_name in zip(heuristics, heuristic_names):
+                solve_and_print_results(
+                    puzzle_function=list_of_100_solvable_puzzles,
+                    with_heapq_memory=False,
+                    heuristic_function=heuristic_function,
+                    title=f"solve 100 puzzles with {heuristic_name.lower()}"
+                )
+
+        # Nach jedem Durchlauf fragen, ob das Programm erneut ausgeführt werden soll
+        print("Do you want to run the program again?")
+        print("1. Yes")
+        print("2. No")
+        choice = input("Enter your choice (1/2): ").strip()
+        if choice != "1":
+            print("Thank you for using the program. Goodbye!")
+            break
+
+
+if __name__ == "__main__":
+    run_program()
