@@ -96,15 +96,34 @@ class Node:
         else:
             self.f = None
 
-        self.time_to_solve_till_goal_node = None
-
     def __lt__(self, other):
-        """compares f value, is used by the heap"""
+        """compares f value, is used by the heapq"""
         return self.f < other.f
 
     def to_hashable(self):
         """Converts the puzzle into a hashable tuple of tuples."""
         return tuple(tuple(row) for row in self.puzzle)
+
+
+class SolutionNode:
+    def __init__(self, node, time_to_solve, heapq_memory_usage, number_of_expanded_nodes):
+        self.puzzle = node.puzzle
+        self.level = node.level
+        self.parent_node = node.parent_node
+        self.function_for_heuristic = node.function_for_heuristic
+        if node.function_for_heuristic is not None and node.puzzle is not None:
+            self.heuristic_value_of_the_puzzle = node.function_for_heuristic(node.puzzle)
+        else:
+            self.heuristic_value_of_the_puzzle = None
+
+        if self.level is not None and self.heuristic_value_of_the_puzzle is not None:
+            self.f = self.level + self.heuristic_value_of_the_puzzle
+        else:
+            self.f = None
+
+        self.time_to_solve_till_goal_node = time_to_solve
+        self.heapq_memory_usage = heapq_memory_usage
+        self.number_of_expanded_nodes = number_of_expanded_nodes
 
 
 def create_child_nodes(parent_node):
@@ -156,9 +175,10 @@ def pretty_print(puzzle):
         print(row)
 
 
-def solve_puzzle(puzzle_as_node, visited_nodes_set, heap, set_is_in_heap):
+def solve_puzzle(puzzle_as_node, visited_nodes_set, heapq_for_unvisited, is_in_heapq_set):
     start_time = time.time()
     current_node = puzzle_as_node
+    expanded_note_count = 0
 
     while current_node.heuristic_value_of_the_puzzle != 0:
 
@@ -167,42 +187,47 @@ def solve_puzzle(puzzle_as_node, visited_nodes_set, heap, set_is_in_heap):
         temp_child_nodes = create_child_nodes(current_node)
 
         for child_node in temp_child_nodes:
-            if child_node.to_hashable() not in visited_nodes_set and child_node.to_hashable() not in set_is_in_heap:
-                heapq.heappush(heap, child_node)
-                set_is_in_heap.add(child_node.to_hashable())
+            if child_node.to_hashable() not in visited_nodes_set and child_node.to_hashable() not in is_in_heapq_set:
+                heapq.heappush(heapq_for_unvisited, child_node)
+                is_in_heapq_set.add(child_node.to_hashable())
+                expanded_note_count += 1
 
-        current_node = heapq.heappop(heap)
-        current_node.time_to_solve_till_goal_node = time.time() - start_time
+        current_node = heapq.heappop(heapq_for_unvisited)
 
-    return current_node
+    time_to_solve = time.time() - start_time
+    solution = SolutionNode(current_node, time_to_solve, None, expanded_note_count)
+    return solution
 
 
-def init_solve_one_puzzle(puzzle, heuristic_function, with_console_output):
+def init_solve_one_puzzle(puzzle, heuristic_function, with_console_output, with_heapq_memory):
     puzzle_as_node = Node(puzzle, 0, heuristic_function, None)
     if with_console_output:
         print("!!!!!!!!!!!!!START!!!!!!!!!!!!!!")
         print(puzzle_as_node.function_for_heuristic)
         pretty_print_puzzle_node(puzzle_as_node)
 
-
     if not check_if_solvable(puzzle_as_node.puzzle):
         print("not solvable")
         return
 
-    heap = []
+    heapq_for_nodes = []
     visited_nodes_set = set()
-    set_is_in_heap = set()
+    set_is_in_heapq = set()
 
-    solution = solve_puzzle(puzzle_as_node, visited_nodes_set, heap, set_is_in_heap)
+    solution_node = solve_puzzle(puzzle_as_node, visited_nodes_set, heapq_for_nodes, set_is_in_heapq)
+    if with_heapq_memory:
+        heapq_memory_usage = asizeof.asizeof(heapq_for_nodes)
+        solution_node.heapq_memory_usage = heapq_memory_usage
 
     if with_console_output:
         print("**********************************************************************")
 
-        print_solution(solution)
-        print(f"Time: {solution.time_to_solve_till_goal_node:.6f} seconds")
-        print(f"heap memory usage: {asizeof.asizeof(heap)} Bytes")
+        print_solution(solution_node)
+        print(f"Time: {solution_node.time_to_solve_till_goal_node:.6f} seconds")
+        if with_heapq_memory:
+            print(f"heapq memory usage: {heapq_memory_usage} Bytes")
 
-    return asizeof.asizeof(heap), solution.time_to_solve_till_goal_node
+    return solution_node
 
 
 def pretty_print_puzzle_node(puzzle_as_a_node):
@@ -235,13 +260,19 @@ def creat_100_solvable_puzzles():
 
 
 def solve_list_of_puzzles(solvable_puzzle_list, heuristic_function, list_of_times_for_each_puzzle_in_sec,
-                          list_of_memory_for_each_puzzle_in_bytes):
+                          list_of_memory_for_each_puzzle_in_bytes, list_of_expanded_nodes_for_each_puzzle, with_heapq_memory):
+
     total_start_time = time.time()
 
     for current_puzzle in solvable_puzzle_list:
-        heap_memory, solution_time = init_solve_one_puzzle(current_puzzle, heuristic_function, False)
-        list_of_memory_for_each_puzzle_in_bytes.append(heap_memory)
-        list_of_times_for_each_puzzle_in_sec.append(solution_time)
+        current_solution_node = init_solve_one_puzzle(current_puzzle, heuristic_function, False, with_heapq_memory)
+        current_heapq_memory = current_solution_node.heapq_memory_usage
+        current_solution_time = current_solution_node.time_to_solve_till_goal_node
+        current_expanded_nodes = current_solution_node.number_of_expanded_nodes
+
+        list_of_memory_for_each_puzzle_in_bytes.append(current_heapq_memory)
+        list_of_times_for_each_puzzle_in_sec.append(current_solution_time)
+        list_of_expanded_nodes_for_each_puzzle.append(current_expanded_nodes)
 
     print("Total time: ", time.time() - total_start_time, " sec")
 
